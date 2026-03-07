@@ -20,6 +20,7 @@ public class PlayerMovement : MonoBehaviour
     public eState m_nState;
     bool isDashing;
 
+
     public enum eState : int
     {
         kMove,
@@ -39,16 +40,15 @@ public class PlayerMovement : MonoBehaviour
         return (m_nState == eState.kDash);
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    //Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         m_nState = eState.kMove;
-
     }
 
-    // Update is called once per frame
+    //Update is called once per frame
     void Update()
     {
         if (isDashing)
@@ -56,6 +56,7 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        //Moves player if in move state
         if (m_nState == eState.kMove)
         {
             rb.linearVelocity = moveInput * moveSpeed;
@@ -83,11 +84,13 @@ public class PlayerMovement : MonoBehaviour
 
         moveInput = context.ReadValue<Vector2>();
 
+        //Sets current input x and y 
         anim.SetFloat("InputX", moveInput.x);
         anim.SetFloat("InputY", moveInput.y);
 
     }
 
+    //Checks if player is trying to dash 
     public void CheckDash(InputAction.CallbackContext context)
     {
         if(!context.performed)
@@ -106,6 +109,8 @@ public class PlayerMovement : MonoBehaviour
         //rb.linearVelocity = new Vector2(moveDir.x * )
     }
 
+
+    //Dash Operation 
     private IEnumerator Dash()
     {
         isDashing = true;
