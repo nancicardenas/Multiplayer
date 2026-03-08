@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-
+using Unity.Cinemachine;
 
 public class PlayerInputManager : MonoBehaviour
 {
@@ -10,10 +10,12 @@ public class PlayerInputManager : MonoBehaviour
     private bool wasdJoined = false;
     private bool arrowsJoined = false;
 
+    private CinemachineTargetGroup targetGroup;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        targetGroup = GetComponent<CinemachineTargetGroup>();
     }
 
     // Update is called once per frame
@@ -28,15 +30,17 @@ public class PlayerInputManager : MonoBehaviour
                 controlScheme: "WASD",
                 pairWithDevice: Keyboard.current);
 
-            
-
             //spawns at the first position
             if(spawnPoints.Length > 0)
             {
                 player.transform.position = spawnPoints[0].position;
             }
 
+            //add player to target for cinemachine 
+            targetGroup.AddMember(player.transform, 1f, 2f);
+
             wasdJoined = true;
+            return;
         }
 
         if(!arrowsJoined && Keyboard.current.digit9Key.wasPressedThisFrame)
@@ -50,20 +54,11 @@ public class PlayerInputManager : MonoBehaviour
                 player.transform.position = spawnPoints[1].position;
             }
 
+            //add player to target for cinemachine 
+            targetGroup.AddMember(player.transform, 1f, 2f);
+
+
             arrowsJoined = true;
         }
-
-        //foreach (var gamePad in Gamepad.all)
-        //{
-        //    if(gamePad.buttonSouth.wasPressedThisFrame)
-        //    {
-        //        PlayerInput.Instantiate(playerPrefab,
-        //            controlScheme: "Gamepad",
-        //            pairWithDevice: gamePad);
-        //    }
-        //}
-
-
-
     }
 }

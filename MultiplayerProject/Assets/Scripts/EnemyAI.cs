@@ -13,7 +13,7 @@ public class EnemyAI : MonoBehaviour
     private Vector3 currentTarget;
     private bool playerDetected;
 
-    private Transform player;
+    private Transform targetPlayer;
     private Rigidbody2D rb;
     private Vector2 movement;
     private Animator anim;
@@ -21,7 +21,6 @@ public class EnemyAI : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         currentTarget = patrolPointB.position;
@@ -30,6 +29,14 @@ public class EnemyAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Transform player = GetClosestPlayer();
+
+        //if player isn't in frame then just patrol 
+        if(player == null)
+        {
+            Patrol();
+        }
+
         //calculates distance between player and enemy 
         float dist = Vector2.Distance(transform.position, player.position);
 
@@ -58,6 +65,7 @@ public class EnemyAI : MonoBehaviour
     void Patrol()
     {
         MoveTowards(currentTarget);
+
         if(Vector2.Distance(transform.position, currentTarget) < 0.1f)
         {
             currentTarget = currentTarget == patrolPointA.position ? patrolPointB.position : patrolPointA.position;
@@ -67,6 +75,30 @@ public class EnemyAI : MonoBehaviour
     private void MoveTowards(Vector3 target)
     {
         Vector2 direction = (target - transform.position).normalized;
-        transform.position += (Vector3)direction * speed * Time.deltaTime;
+        //transform.position += (Vector3)direction * speed * Time.deltaTime;
+
+        rb.MovePosition(rb.position + direction * speed * Time.deltaTime);
+    }
+
+    //targets closest player 
+    private Transform GetClosestPlayer()
+    {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        Transform closestPlayer = null;
+        float minDist = Mathf.Infinity;
+
+        foreach(GameObject p in players)
+        {
+            float dist = Vector2.Distance(transform.position, p.transform.position);
+
+            if(dist < minDist)
+            {
+                minDist = dist;
+                closestPlayer = p.transform;
+            }
+        }
+
+        return closestPlayer;
     }
 }

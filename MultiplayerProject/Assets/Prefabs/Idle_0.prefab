@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2077787483859607912}
   - component: {fileID: 8468473932743854220}
   - component: {fileID: 1349879396684723232}
+  - component: {fileID: -6059217162667893511}
   m_Layer: 0
   m_Name: Idle_0
   m_TagString: Player
@@ -115,7 +116,7 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
@@ -279,3 +280,17 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-6059217162667893511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2758245789451569501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee75c23f52f954e0eb6ec19547369e83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startingHealth: 3
+  stopDamage: 0

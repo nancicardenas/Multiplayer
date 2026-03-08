@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -44,12 +45,11 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>();
+        anim = GetComponentInChildren<Animator>();
         m_nState = eState.kMove;
     }
 
-    //Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (isDashing)
         {
@@ -59,7 +59,7 @@ public class PlayerMovement : MonoBehaviour
         //Moves player if in move state
         if (m_nState == eState.kMove)
         {
-            rb.linearVelocity = moveInput * moveSpeed;
+            rb.linearVelocity = moveInput * moveSpeed * Time.deltaTime;
         }
 
         //if(m_nState == eState.kDash)
@@ -102,11 +102,6 @@ public class PlayerMovement : MonoBehaviour
             m_nState = eState.kDash;
             StartCoroutine(Dash());
         }
-
-       
-        //Vector3 moveDir = transform.right;
-        //rb.linearVelocity = new Vector2(moveInput.x * dashSpeed, moveInput.y * dashSpeed)
-        //rb.linearVelocity = new Vector2(moveDir.x * )
     }
 
 
@@ -120,15 +115,13 @@ public class PlayerMovement : MonoBehaviour
         isDashing = false;
     }
 
-    //private void OnTriggerEnter2D(Collider2D collision)
+    //private void OnCollisionEnter2D(Collision2D collision)
     //{
     //    GameObject collidedWith = collision.gameObject;
-
-    //    if (collidedWith.CompareTag("Crate"))
-    //    {
-    //        if (m_nState == eState.kMove)
+    //    if (collidedWith.CompareTag("End")) {
+    //        if(GemManager.Instance.totalGems == 5)
     //        {
-    //            collidedWith.transform.position;
+
     //        }
     //    }
     //}
