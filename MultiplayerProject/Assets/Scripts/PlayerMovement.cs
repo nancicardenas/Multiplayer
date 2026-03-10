@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using Unity.Netcode;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
 
     //public Crate m_crate;
@@ -31,6 +32,11 @@ public class PlayerMovement : MonoBehaviour
         kNumStates
     }
 
+    public override void OnNetworkSpawn()
+    {
+        GetComponent<PlayerInput>().ActivateInput();
+    }
+
     public bool IsMoving()
     {
         return (m_nState == eState.kMove);
@@ -44,6 +50,8 @@ public class PlayerMovement : MonoBehaviour
     //Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if (!IsOwner) return;
+
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponentInChildren<Animator>();
         m_nState = eState.kMove;
@@ -51,6 +59,12 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!IsOwner)
+        {
+            return;
+        }
+
+
         if (isDashing)
         {
             return;
@@ -59,8 +73,11 @@ public class PlayerMovement : MonoBehaviour
         //Moves player if in move state
         if (m_nState == eState.kMove)
         {
-            rb.linearVelocity = moveInput * moveSpeed * Time.deltaTime;
+            rb.MovePosition(rb.position + moveInput * moveSpeed * Time.fixedDeltaTime);
+            //rb.linearVelocity = moveInput * moveSpeed;
         }
+
+        SubmitPositionRequestServerRpc(transform.position);
 
         //if(m_nState == eState.kDash)
         //{
@@ -71,6 +88,10 @@ public class PlayerMovement : MonoBehaviour
 
     public void Move(InputAction.CallbackContext context)
     {
+        if (!IsOwner) return;
+
+        Debug.Log("Move called");
+
         anim.SetBool("isWalking", true);
         m_nState = eState.kMove;
 
@@ -104,6 +125,12 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    [Rpc(SendTo.Server)]
+    void SubmitPositionRequestServerRpc(Vector2 newPos)
+    {
+        transform.position = newPos;
+    }
+
 
     //Dash Operation 
     private IEnumerator Dash()
@@ -115,14 +142,15 @@ public class PlayerMovement : MonoBehaviour
         isDashing = false;
     }
 
-    //private void OnCollisionEnter2D(Collision2D collision)
-    //{
-    //    GameObject collidedWith = collision.gameObject;
-    //    if (collidedWith.CompareTag("End")) {
-    //        if(GemManager.Instance.totalGems == 5)
-    //        {
-
-    //        }
-    //    }
-    //}
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        GameObject collidedWith = collision.gameObject;
+        if (collidedWith.CompareTag("End"))
+        {
+            if (GemManager.Instance.totalGems >= 5)
+            {
+                WinManager.Instance.WinGame();
+            }
+        }
+    }
 }

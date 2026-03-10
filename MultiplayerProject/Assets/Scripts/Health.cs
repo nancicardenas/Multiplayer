@@ -2,28 +2,45 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 
-public class Health : MonoBehaviour
+
+public class Health : NetworkBehaviour
 {
-    [SerializeField] private float startingHealth;
+    [SerializeField] private int startingHealth;
+
+    public NetworkVariable<int> currentHealth = new NetworkVariable<int>();
 
     public bool stopDamage;
 
-    public float currentHealth { get; private set; }
-    
-    private void Awake()
+    //public NetworkVariable<int> currentHealth { get; private set; }
+
+    public override void OnNetworkSpawn()
     {
-        currentHealth = startingHealth;
+        if(IsServer)
+        {
+            currentHealth.Value = startingHealth;
+        }
     }
 
-    public void TakeDamage(float _damage)
+    
+    //private void Awake()
+    //{
+    //    currentHealth.Value = startingHealth;
+    //}
+
+    public void TakeDamage(int _damage)
     {
+        if (!IsServer) return;
+
         //makes sure that health doesnt go under 0 or max value
-        currentHealth = Mathf.Clamp(currentHealth - _damage, 0, startingHealth);
+        currentHealth.Value = Mathf.Clamp(currentHealth.Value - _damage, 0, startingHealth);
     }
   
     public void OnCollisionEnter2D(Collision2D collision)
     {
+        if (!IsServer) return;
+
         //take damage if hit by enemy
         if (collision.gameObject.CompareTag("Enemy"))
         {
@@ -37,11 +54,14 @@ public class Health : MonoBehaviour
         {
             stopDamage = true;
             TakeDamage(1);
-            yield return new WaitForSeconds(1f);
+
+            yield return new WaitForSeconds(2f);
+
             stopDamage = false;
         }
 
-        if (currentHealth == 0)
+        //death
+        if (currentHealth.Value <= 0)
         {
             
         }

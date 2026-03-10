@@ -1,64 +1,49 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
+using Unity.Netcode;
 
 public class PlayerInputManager : MonoBehaviour
 {
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform[] spawnPoints;
 
-    private bool wasdJoined = false;
-    private bool arrowsJoined = false;
-
-    private CinemachineTargetGroup targetGroup;
+    //private CinemachineTargetGroup targetGroup;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        targetGroup = GetComponent<CinemachineTargetGroup>();
+
+        if(NetworkManager.Singleton == null)
+        {
+            Debug.LogError("NetworkManager not found");
+
+        }
+
+        NetworkManager.Singleton.OnClientConnectedCallback += SpawnPlayerForClient;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDestroy()
     {
-        if (Keyboard.current == null) return;
-
-        //instantiate first player if they have pressed the space key 
-        if(!wasdJoined && Keyboard.current.spaceKey.wasPressedThisFrame)
+        if(NetworkManager.Singleton != null)
         {
-            var player = PlayerInput.Instantiate (playerPrefab,
-                controlScheme: "WASD",
-                pairWithDevice: Keyboard.current);
-
-            //spawns at the first position
-            if(spawnPoints.Length > 0)
-            {
-                player.transform.position = spawnPoints[0].position;
-            }
-
-            //add player to target for cinemachine 
-            targetGroup.AddMember(player.transform, 1f, 2f);
-
-            wasdJoined = true;
-            return;
+            NetworkManager.Singleton.OnClientConnectedCallback -= SpawnPlayerForClient;
         }
+    }
 
-        if(!arrowsJoined && Keyboard.current.digit9Key.wasPressedThisFrame)
-        {
-            var player = PlayerInput.Instantiate(playerPrefab,
-                controlScheme: "Arrows",
-                pairWithDevice: Keyboard.current);
+    //spawn player 
+    private void SpawnPlayerForClient(ulong clientId)
+    {
+        Debug.Log("Player spawned for client: " + clientId);
 
-            if(spawnPoints.Length > 1)
-            {
-                player.transform.position = spawnPoints[1].position;
-            }
+        if (!NetworkManager.Singleton.IsServer) return;
 
-            //add player to target for cinemachine 
-            targetGroup.AddMember(player.transform, 1f, 2f);
+        int spawnIndex = (int)(clientId % (ulong)spawnPoints.Length);
+        Vector3 spawnPos = spawnPoints[spawnIndex].position;
 
+        GameObject playerInstance = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
 
-            arrowsJoined = true;
-        }
+        NetworkObject netObj = playerInstance.GetComponent<NetworkObject>();
+        netObj.SpawnAsPlayerObject(clientId);
     }
 }

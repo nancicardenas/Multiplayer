@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 
-public class EnemyAI : MonoBehaviour
+public class EnemyAI : NetworkBehaviour
 {
     public float detectionRange = 20f;
     public float speed = 2f;
@@ -17,6 +18,7 @@ public class EnemyAI : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 movement;
     private Animator anim;
+    private Vector2 moveDirection;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -29,12 +31,15 @@ public class EnemyAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!IsServer) return;
+
         Transform player = GetClosestPlayer();
 
         //if player isn't in frame then just patrol 
         if(player == null)
         {
             Patrol();
+            return;
         }
 
         //calculates distance between player and enemy 
@@ -47,14 +52,16 @@ public class EnemyAI : MonoBehaviour
 
         }
 
-        else if(dist> detectionRange + 1f)
+        else if(dist > detectionRange + 1f)
         {
             playerDetected = false;
         }
 
         if(playerDetected)
         {
-            MoveTowards(player.position);
+            targetPlayer = player;
+            moveDirection = (player.position - transform.position).normalized;
+            //MoveTowards(player.position);
         }
         else
         {
@@ -62,9 +69,18 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+    private void FixedUpdate()
+    {
+        if (!IsServer) return;
+
+        rb.MovePosition(rb.position + moveDirection * speed * Time.fixedDeltaTime);
+    }
+
     void Patrol()
     {
-        MoveTowards(currentTarget);
+        //MoveTowards(currentTarget);
+
+        moveDirection = (currentTarget - transform.position).normalized;
 
         if(Vector2.Distance(transform.position, currentTarget) < 0.1f)
         {
@@ -72,13 +88,13 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    private void MoveTowards(Vector3 target)
-    {
-        Vector2 direction = (target - transform.position).normalized;
-        //transform.position += (Vector3)direction * speed * Time.deltaTime;
+    //private void MoveTowards(Vector3 target)
+    //{
+    //    Vector2 direction = (target - transform.position).normalized;
+    //    //transform.position += (Vector3)direction * speed * Time.deltaTime;
 
-        rb.MovePosition(rb.position + direction * speed * Time.deltaTime);
-    }
+    //    rb.MovePosition(rb.position + direction * speed * Time.fixedDeltaTime);
+    //}
 
     //targets closest player 
     private Transform GetClosestPlayer()

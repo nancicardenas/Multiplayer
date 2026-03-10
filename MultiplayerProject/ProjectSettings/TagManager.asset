@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Crate
   - Enemy
+  - End
   layers:
   - Default
   - TransparentFX
