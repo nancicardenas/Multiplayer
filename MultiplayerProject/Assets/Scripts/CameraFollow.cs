@@ -35,6 +35,7 @@ public class CameraFollow : MonoBehaviour
         }
     }
 
+    //move camera based on center while also staying within bounds 
     public void MoveCamera()
     {
         Vector3 center = GetCenterPoint();
@@ -58,6 +59,7 @@ public class CameraFollow : MonoBehaviour
         cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, newZoom, Time.deltaTime);
     }
 
+    //gets center point between players 
     Vector3 GetCenterPoint()
     {
         if(players.Count == 1)
@@ -75,6 +77,7 @@ public class CameraFollow : MonoBehaviour
         return bounds.center;
     }
 
+    //dist between players 
     float GetGreatestDistance()
     {
         Bounds bounds = new Bounds(players[0].position, Vector3.zero);

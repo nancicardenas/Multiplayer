@@ -5,7 +5,7 @@ public class WinManager : MonoBehaviour
     public static WinManager Instance;
     [SerializeField] private GameObject winPanel;
 
-  
+    //win panel shows when player wins game 
     void Awake()
     {
         Instance = this;

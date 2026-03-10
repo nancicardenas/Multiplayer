@@ -32,26 +32,31 @@ public class PlayerMovement : NetworkBehaviour
         kNumStates
     }
 
+    //enable input if is owner
     public override void OnNetworkSpawn()
     {
-        GetComponent<PlayerInput>().ActivateInput();
+        PlayerInput input = GetComponent<PlayerInput>();
+
+        if(IsOwner)
+        {
+            input.enabled = true;
+        }
+
+        else
+        {
+            input.enabled = false;
+        }
     }
 
+    //move state
     public bool IsMoving()
     {
         return (m_nState == eState.kMove);
     }
 
-    public bool IsDiving()
-    {
-        return (m_nState == eState.kDash);
-    }
-
     //Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        if (!IsOwner) return;
-
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponentInChildren<Animator>();
         m_nState = eState.kMove;
@@ -64,25 +69,13 @@ public class PlayerMovement : NetworkBehaviour
             return;
         }
 
-
-        if (isDashing)
-        {
-            return;
-        }
-
         //Moves player if in move state
         if (m_nState == eState.kMove)
         {
             rb.MovePosition(rb.position + moveInput * moveSpeed * Time.fixedDeltaTime);
-            //rb.linearVelocity = moveInput * moveSpeed;
         }
 
         SubmitPositionRequestServerRpc(transform.position);
-
-        //if(m_nState == eState.kDash)
-        //{
-        //    StartCoroutine(Dash());
-        //}
         
     }
 
@@ -111,37 +104,13 @@ public class PlayerMovement : NetworkBehaviour
 
     }
 
-    //Checks if player is trying to dash 
-    public void CheckDash(InputAction.CallbackContext context)
-    {
-        if(!context.performed)
-        {
-            return;
-        }
-        if(m_nState == eState.kMove)
-        {
-            m_nState = eState.kDash;
-            StartCoroutine(Dash());
-        }
-    }
-
     [Rpc(SendTo.Server)]
     void SubmitPositionRequestServerRpc(Vector2 newPos)
     {
         transform.position = newPos;
     }
 
-
-    //Dash Operation 
-    private IEnumerator Dash()
-    {
-        isDashing = true;
-        rb.linearVelocity = new Vector2(moveInput.x * dashSpeed, moveInput.y * dashSpeed);
-        yield return new WaitForSeconds(dashDuraton);
-        m_nState = eState.kMove;
-        isDashing = false;
-    }
-
+    //players reach end of level, win if collected more than 5 gems 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         GameObject collidedWith = collision.gameObject;

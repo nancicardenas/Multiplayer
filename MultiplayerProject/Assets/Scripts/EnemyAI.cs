@@ -61,7 +61,6 @@ public class EnemyAI : NetworkBehaviour
         {
             targetPlayer = player;
             moveDirection = (player.position - transform.position).normalized;
-            //MoveTowards(player.position);
         }
         else
         {
@@ -78,8 +77,6 @@ public class EnemyAI : NetworkBehaviour
 
     void Patrol()
     {
-        //MoveTowards(currentTarget);
-
         moveDirection = (currentTarget - transform.position).normalized;
 
         if(Vector2.Distance(transform.position, currentTarget) < 0.1f)
@@ -87,14 +84,6 @@ public class EnemyAI : NetworkBehaviour
             currentTarget = currentTarget == patrolPointA.position ? patrolPointB.position : patrolPointA.position;
         }
     }
-
-    //private void MoveTowards(Vector3 target)
-    //{
-    //    Vector2 direction = (target - transform.position).normalized;
-    //    //transform.position += (Vector3)direction * speed * Time.deltaTime;
-
-    //    rb.MovePosition(rb.position + direction * speed * Time.fixedDeltaTime);
-    //}
 
     //targets closest player 
     private Transform GetClosestPlayer()

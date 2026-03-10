@@ -15,6 +15,8 @@ namespace MultProject
         Button moveButton;
         Label statusLabel;
 
+
+        //create buttons 
         void OnEnable()
         {
             var uiDocument = GetComponent<UIDocument>();
@@ -23,7 +25,6 @@ namespace MultProject
             hostButton = CreateButton("HostButton", "Host");
             clientButton = CreateButton("ClientButton", "Client");
             serverButton = CreateButton("ServerButton", "Server");
-            //moveButton = CreateButton("MoveButton", "Move");
             statusLabel = CreateLabel("StatusLabel", "Not Connected");
 
             rootVisualElement.Clear();
@@ -36,7 +37,6 @@ namespace MultProject
             hostButton.clicked += OnHostButtonClicked;
             clientButton.clicked += OnClientButtonClicked;
             serverButton.clicked += OnServerButtonClicked;
-            //moveButton.clicked += SubmitNewPosition;
         }
 
         // Update is called once per frame
@@ -50,7 +50,6 @@ namespace MultProject
             hostButton.clicked -= OnHostButtonClicked;
             clientButton.clicked -= OnClientButtonClicked;
             serverButton.clicked -= OnServerButtonClicked;
-            //moveButton.clicked -= SubmitNewPosition;
         }
 
         void OnHostButtonClicked() => NetworkManager.Singleton.StartHost();
@@ -88,7 +87,6 @@ namespace MultProject
             if(NetworkManager.Singleton == null)
             {
                 SetStartButton(false);
-                //SetMoveButton(false);
                 SetStatusText("NetworkManager not found");
                 return;
             }
@@ -96,7 +94,6 @@ namespace MultProject
             if(!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
             {
                 SetStartButton(true);
-                //SetMoveButton(false);
                 SetStatusText("Not connected");
 
             }
@@ -104,7 +101,6 @@ namespace MultProject
             else
             {
                 SetStartButton(false);
-                //SetMoveButton(true);
                 UpdateStatusLabels();
             }
         }
@@ -135,28 +131,6 @@ namespace MultProject
             string modeText = "Mode: " + mode;
             SetStatusText($"{transport}\n{modeText}");
         }
-
-        //void SubmitNewPosition()
-        //{
-        //    if(NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsClient)
-        //    {
-        //        foreach (ulong uid in NetworkManager.Singleton.ConnectedClientsIds)
-        //        {
-        //            var playerObject = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(uid);
-        //            var player = playerObject.GetComponent<MultProjectPlayer>();
-        //            player.Move();
-        //        }
-        //    }
-
-        //    else if(NetworkManager.Singleton.IsClient)
-        //    {
-        //        var playerObject = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
-        //        var player = playerObject.GetComponent<MultProjectPlayer>();
-        //        player.Move(); 
-        //    }
-        //}
-
-
     }
 }
 

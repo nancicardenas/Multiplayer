@@ -8,8 +8,6 @@ public class PlayerInputManager : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform[] spawnPoints;
 
-    //private CinemachineTargetGroup targetGroup;
-
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

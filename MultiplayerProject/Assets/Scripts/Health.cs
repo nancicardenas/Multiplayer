@@ -13,8 +13,6 @@ public class Health : NetworkBehaviour
 
     public bool stopDamage;
 
-    //public NetworkVariable<int> currentHealth { get; private set; }
-
     public override void OnNetworkSpawn()
     {
         if(IsServer)
@@ -22,12 +20,6 @@ public class Health : NetworkBehaviour
             currentHealth.Value = startingHealth;
         }
     }
-
-    
-    //private void Awake()
-    //{
-    //    currentHealth.Value = startingHealth;
-    //}
 
     public void TakeDamage(int _damage)
     {
